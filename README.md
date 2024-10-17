@@ -1,6 +1,11 @@
 SIDDHARTHA LALA
 20315464
 
+nodejs based frontend + backend
+
+frontend uses vue + node 
+backend uses only node
+
 ## TO START
 
 ```cd client

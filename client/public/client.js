@@ -6,7 +6,7 @@ const App = {
 
         const getWeather = async () => {
             try {
-                const response = await fetch('http://localhost:3000/getWeather', { // Use backend API running on port 3000
+                const response = await fetch('http://localhost:3000/getWeather', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ city: city.value })
