@@ -16,5 +16,5 @@ cd ../server
 npm install
 node server.js -> runs on port http://localhost:3000
 
-
+```
 ### POST  /getWeather  returns weather data
