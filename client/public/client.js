@@ -1,52 +1,82 @@
-const App = {
-    setup() {
-        const city = Vue.ref('');
-        const weatherData = Vue.ref(null);
-        const error = Vue.ref(null);
+// Create the Vue app
+const app = Vue.createApp({
+    data() {
+      return {
+        city: '',           
+        weatherData: null,  
+        date: null,         
+        errorMessage: null,
+      };
+    },
+    methods: {
+      async fetchWeather() {
+        try {
+          const response = await fetch('http://localhost:3000/getWeather', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ city: this.city })
+          });
+          const data = await response.json();
+          if (response.ok) {
+            this.weatherData = data.forecast;
+            this.errorMessage = null;
 
-        const getWeather = async () => {
-            try {
-                const response = await fetch('http://localhost:3000/getWeather', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ city: city.value })
-                });
+            
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch weather data');
-                }
-
-                const data = await response.json();
-                weatherData.value = data.forecast;
-                error.value = null;
-            } catch (err) {
-                error.value = 'Could not fetch weather data. Please try again.';
-                weatherData.value = null;
-            }
-        };
-
-        return { city, weatherData, error, getWeather };
+          } else {
+            this.weatherData = null;
+            this.errorMessage = 'Error fetching weather data!';
+          }
+        } catch (error) {
+          this.errorMessage = 'Error connecting to the server!';
+          console.error(error);
+        }
+      }
     },
     template: `
-      <div>
-        <h1>Weather Forecast</h1>
-        <input v-model="city" placeholder="Enter city name" />
-        <button @click="getWeather">Get Forecast</button>
+      <div class="container">
+        <div class="card">
+          <h2>Weather App</h2>
   
-        <p v-if="error" style="color: red;">{{ error }}</p>
+          <!-- Input field for city -->
+          <div class="input-section">
+            <p-inputtext v-model="city" placeholder="Enter city" aria-label="City input"></p-inputtext>
+            <p-button label="Submit" icon="pi pi-search" @click="fetchWeather"></p-button>
+          </div>
   
-        <div v-if="weatherData">
-          <h2>Weather in {{ weatherData.location }}, {{ weatherData.country }}</h2>
-          <p><strong>Local Time:</strong> {{ weatherData.localtime }}</p>
-          <p><strong>Temperature:</strong> {{ weatherData.temperature }}°C</p>
-          <p><strong>Condition:</strong> {{ weatherData.condition }}</p>
-          <p><strong>Wind Speed:</strong> {{ weatherData.wind_speed }} kph</p>
-          <p><strong>Precipitation:</strong> {{ weatherData.precipitation }} mm</p>
-          <p><strong>Humidity:</strong> {{ weatherData.humidity }}%</p>
-          <img :src="weatherData.icon" alt="Weather Icon" />
+  
+          <!-- Error Message -->
+          <div v-if="errorMessage" class="error-message">
+            <p>{{ errorMessage }}</p>
+          </div>
+  
+          <!-- Weather Details -->
+          <div v-if="weatherData" class="weather-details">
+            <h3>{{ weatherData.location }}, {{ weatherData.country }}</h3>
+            <p>{{ weatherData.localtime }}</p>
+            <img :src="weatherData.icon" :alt="weatherData.condition" aria-label="Weather icon">
+            <p>Condition: {{ weatherData.condition }}</p>
+            <p class="temperature">{{ weatherData.temperature }} °C</p>
+            <p>Wind Speed: {{ weatherData.wind_speed }} km/h</p>
+            <p>Precipitation: {{ weatherData.precipitation }} mm</p>
+            <p>Humidity: {{ weatherData.humidity }} %</p>
+            <p>Air Pollution: {{ weatherData.epaIndex}} <span class='weatherWarning'>{{weatherData.epaIndex > 2 ? '!!!': ''}}</span></p>
+            <p class="packing">{{weatherData.packingSuggestion}}</p>
+            <p class="tips">Sustainability Tips:</p>
+            <p class="tips">{{weatherData.sustainabilityTips}}</p>
+            </div>
         </div>
       </div>
     `
-};
+  });
+  
 
-Vue.createApp(App).mount('#app');
+  app.use(PrimeVue.Config);
+  app.component('p-button', PrimeVue.Button);
+  app.component('p-inputtext', PrimeVue.InputText);
+
+  // Mount the app
+  app.mount('#app');
+  

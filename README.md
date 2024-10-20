@@ -1,4 +1,4 @@
-SIDDHARTHA LALA
+SIDDHARTH LALA
 20315464
 
 nodejs based frontend + backend
